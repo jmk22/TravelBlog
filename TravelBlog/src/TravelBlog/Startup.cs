@@ -6,14 +6,28 @@ using Microsoft.AspNet.Builder;
 using Microsoft.AspNet.Hosting;
 using Microsoft.AspNet.Http;
 using Microsoft.Extensions.DependencyInjection;
+using TravelBlog.Models;
+using Microsoft.Data.Entity;
+using Microsoft.Extensions.Configuration;
 
 namespace TravelBlog
 {
     public class Startup
     {
+        public IConfigurationRoot Configuration { get; set; }
+        public Startup()
+        {
+            var builder = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json");
+            Configuration = builder.Build();
+        }
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddEntityFramework()
+                .AddSqlServer()
+                .AddDbContext<TravelBlogDbContext>(options =>
+                    options.UseSqlServer(Configuration["Data:DefaultConnection:ConnectionString"]));
         }
 
         public void Configure(IApplicationBuilder app)
